@@ -4,8 +4,9 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "updater_app",
+        "storage_move_to_sd",
         "js_app",
-        "findmy_startup",
+        "js_app_start",
         # "archive",
     ],
 )

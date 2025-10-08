@@ -6,7 +6,6 @@
 #include <furi_hal_rtc.h>
 #include <furi_hal_debug.h>
 #include <furi_hal_bt.h>
-#include <furi_hal_interrupt.h>
 #include <stdio.h>
 
 #include <FreeRTOS.h>
@@ -102,25 +101,17 @@ static void __furi_print_bt_stack_info(void) {
 
 static void __furi_print_heap_info(void) {
     furi_log_puts("\r\n\t     heap total: ");
-    __furi_put_uint32_as_text(configTOTAL_HEAP_SIZE);
+    __furi_put_uint32_as_text(xPortGetTotalHeapSize());
     furi_log_puts("\r\n\t      heap free: ");
     __furi_put_uint32_as_text(xPortGetFreeHeapSize());
-    HeapStats_t heap_stats;
-    vPortGetHeapStats(&heap_stats);
     furi_log_puts("\r\n\t heap watermark: ");
-    __furi_put_uint32_as_text(heap_stats.xMinimumEverFreeBytesRemaining);
+    __furi_put_uint32_as_text(xPortGetMinimumEverFreeHeapSize());
 }
 
 static void __furi_print_name(bool isr) {
     if(isr) {
-        uint8_t exception_number = __get_IPSR();
-        const char* name = furi_hal_interrupt_get_name(exception_number);
         furi_log_puts("[ISR ");
-        if(name) {
-            furi_log_puts(name);
-        } else {
-            __furi_put_uint32_as_text(__get_IPSR());
-        }
+        __furi_put_uint32_as_text(__get_IPSR());
         furi_log_puts("] ");
     } else {
         const char* name = pcTaskGetName(NULL);

@@ -28,18 +28,8 @@ bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneMfClassicKeys)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneMfClassicKeys);
-            } else if(scene_manager_has_previous_scene(
-                          nfc->scene_manager, NfcSceneMfUltralightCKeys)) {
-                consumed = scene_manager_search_and_switch_to_previous_scene(
-                    nfc->scene_manager, NfcSceneMfUltralightCKeys);
             } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSaveConfirm)) {
-                NfcSceneSaveConfirmState scene_state =
-                    scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSaveConfirm);
-
-                NfcScene scene = scene_state == NfcSceneSaveConfirmStateCrackNonces ?
-                                     NfcSceneMfClassicMfkeyComplete :
-                                     NfcSceneMfClassicDetectReader;
-                scene_manager_next_scene(nfc->scene_manager, scene);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
                 consumed = true;
             } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
                 consumed = scene_manager_search_and_switch_to_another_scene(

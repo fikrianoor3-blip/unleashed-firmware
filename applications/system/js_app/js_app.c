@@ -4,9 +4,7 @@
 #include "js_app_i.h"
 #include <toolbox/path.h>
 #include <assets_icons.h>
-#include <toolbox/cli/cli_command.h>
-#include <cli/cli_main_commands.h>
-#include <toolbox/pipe.h>
+#include <cli/cli.h>
 
 #define TAG "JS app"
 
@@ -71,6 +69,7 @@ static JsApp* js_app_alloc(void) {
     app->loading = loading_alloc();
 
     app->gui = furi_record_open("gui");
+    view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
     view_dispatcher_add_view(
         app->view_dispatcher, JsAppViewLoading, loading_get_view(app->loading));
@@ -116,7 +115,7 @@ int32_t js_app(void* arg) {
         FuriString* start_text =
             furi_string_alloc_printf("Running %s", furi_string_get_cstr(name));
         console_view_print(app->console_view, furi_string_get_cstr(start_text));
-        console_view_print(app->console_view, "-------------");
+        console_view_print(app->console_view, "------------");
         furi_string_free(name);
         furi_string_free(start_text);
 
@@ -133,14 +132,12 @@ int32_t js_app(void* arg) {
 } //-V773
 
 typedef struct {
-    PipeSide* pipe;
+    Cli* cli;
     FuriSemaphore* exit_sem;
 } JsCliContext;
 
 static void js_cli_print(JsCliContext* ctx, const char* msg) {
-    UNUSED(ctx);
-    UNUSED(msg);
-    pipe_send(ctx->pipe, msg, strlen(msg));
+    cli_write(ctx->cli, (uint8_t*)msg, strlen(msg));
 }
 
 static void js_cli_exit(JsCliContext* ctx) {
@@ -174,7 +171,7 @@ static void js_cli_callback(JsThreadEvent event, const char* msg, void* context)
     }
 }
 
-void js_cli_execute(PipeSide* pipe, FuriString* args, void* context) {
+void js_cli_execute(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
 
     const char* path = furi_string_get_cstr(args);
@@ -191,14 +188,14 @@ void js_cli_execute(PipeSide* pipe, FuriString* args, void* context) {
             break;
         }
 
-        JsCliContext ctx = {.pipe = pipe};
+        JsCliContext ctx = {.cli = cli};
         ctx.exit_sem = furi_semaphore_alloc(1, 0);
 
         printf("Running script %s, press CTRL+C to stop\r\n", path);
         JsThread* js_thread = js_thread_run(path, js_cli_callback, &ctx);
 
         while(furi_semaphore_acquire(ctx.exit_sem, 100) != FuriStatusOk) {
-            if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
+            if(cli_cmd_interrupt_received(cli)) break;
         }
 
         js_thread_stop(js_thread);
@@ -210,8 +207,8 @@ void js_cli_execute(PipeSide* pipe, FuriString* args, void* context) {
 
 void js_app_on_system_start(void) {
 #ifdef SRV_CLI
-    CliRegistry* registry = furi_record_open(RECORD_CLI);
-    cli_registry_add_command(registry, "js", CliCommandFlagDefault, js_cli_execute, NULL);
+    Cli* cli = furi_record_open(RECORD_CLI);
+    cli_add_command(cli, "js", CliCommandFlagDefault, js_cli_execute, NULL);
     furi_record_close(RECORD_CLI);
 #endif
 }

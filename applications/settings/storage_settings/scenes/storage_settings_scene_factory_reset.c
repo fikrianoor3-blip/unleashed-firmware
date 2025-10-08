@@ -65,9 +65,7 @@ bool storage_settings_scene_factory_reset_on_event(void* context, SceneManagerEv
             } else {
                 furi_hal_rtc_reset_registers();
                 furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
-
-                Power* power = furi_record_open(RECORD_POWER);
-                power_reboot(power, PowerBootModeNormal);
+                power_reboot(PowerBootModeNormal);
             }
 
             consumed = true;

@@ -4,13 +4,13 @@
  */
 #pragma once
 
-#include "base.h"
+#include "core/base.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct FuriMessageQueue FuriMessageQueue;
+typedef void FuriMessageQueue;
 
 /** Allocate furi message queue
  *

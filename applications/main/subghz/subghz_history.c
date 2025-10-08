@@ -3,9 +3,9 @@
 
 #include <furi.h>
 
-#define SUBGHZ_HISTORY_MAX       55
+#define SUBGHZ_HISTORY_MAX 55
 #define SUBGHZ_HISTORY_FREE_HEAP 20480
-#define TAG                      "SubGhzHistory"
+#define TAG "SubGhzHistory"
 
 typedef struct {
     FuriString* item_str;
@@ -15,7 +15,7 @@ typedef struct {
     DateTime datetime;
 } SubGhzHistoryItem;
 
-ARRAY_DEF(SubGhzHistoryItemArray, SubGhzHistoryItem, M_POD_OPLIST) //-V658
+ARRAY_DEF(SubGhzHistoryItemArray, SubGhzHistoryItem, M_POD_OPLIST)
 
 #define M_OPL_SubGhzHistoryItemArray_t() ARRAY_OPLIST(SubGhzHistoryItemArray, M_POD_OPLIST)
 

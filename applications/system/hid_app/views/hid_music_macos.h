@@ -2,10 +2,9 @@
 
 #include <gui/view.h>
 
-typedef struct Hid Hid;
 typedef struct HidMusicMacos HidMusicMacos;
 
-HidMusicMacos* hid_music_macos_alloc(Hid* hid);
+HidMusicMacos* hid_music_macos_alloc();
 
 void hid_music_macos_free(HidMusicMacos* hid_music_macos);
 

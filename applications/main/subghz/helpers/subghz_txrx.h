@@ -121,9 +121,8 @@ void subghz_txrx_sleep(SubGhzTxRx* instance);
  * Update frequency CC1101 in automatic mode (hopper)
  * 
  * @param instance Pointer to a SubGhzTxRx
- * @param stay_threshold RSSI theshold over which to stay before hopping
  */
-void subghz_txrx_hopper_update(SubGhzTxRx* instance, float stay_threshold);
+void subghz_txrx_hopper_update(SubGhzTxRx* instance);
 
 /**
  * Get state hopper

@@ -7,7 +7,6 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/text_input.h>
-#include <gui/modules/dialog_ex.h>
 #include <dialogs/dialogs.h>
 #include <assets_icons.h>
 
@@ -15,8 +14,6 @@
 #include <desktop/views/desktop_view_pin_input.h>
 #include "views/desktop_settings_view_pin_setup_howto.h"
 #include "views/desktop_settings_view_pin_setup_howto2.h"
-
-#include <furi_hal_version.h>
 
 typedef enum {
     DesktopSettingsAppViewMenu,
@@ -26,7 +23,6 @@ typedef enum {
     DesktopSettingsAppViewIdPinSetupHowto,
     DesktopSettingsAppViewIdPinSetupHowto2,
     DesktopSettingsAppViewTextInput,
-    DesktopSettingsAppViewDialogEx,
 } DesktopSettingsAppView;
 
 typedef struct {
@@ -43,9 +39,8 @@ typedef struct {
     DesktopViewPinInput* pin_input_view;
     DesktopSettingsViewPinSetupHowto* pin_setup_howto_view;
     DesktopSettingsViewPinSetupHowto2* pin_setup_howto2_view;
-    DialogEx* dialog_ex;
 
-    DesktopPinCode pincode_buffer;
+    PinCode pincode_buffer;
     bool pincode_buffer_filled;
 
     bool save_name;

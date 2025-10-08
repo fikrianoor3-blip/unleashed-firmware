@@ -1,16 +1,16 @@
 #include "receiver.h"
 #include "../subghz_i.h"
+#include <math.h>
 
-#include "types.h"
 #include <input/input.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
 #include <m-array.h>
 
 #define FRAME_HEIGHT 12
-#define MAX_LEN_PX   111
-#define MENU_ITEMS   4u
-#define UNLOCK_CNT   3
+#define MAX_LEN_PX 111
+#define MENU_ITEMS 4u
+#define UNLOCK_CNT 3
 
 // #define SUBGHZ_RAW_THRESHOLD_MIN (-90.0f)
 
@@ -22,7 +22,7 @@ typedef struct {
     uint8_t type;
 } SubGhzReceiverMenuItem;
 
-ARRAY_DEF(SubGhzReceiverMenuItemArray, SubGhzReceiverMenuItem, M_POD_OPLIST) //-V658
+ARRAY_DEF(SubGhzReceiverMenuItemArray, SubGhzReceiverMenuItem, M_POD_OPLIST)
 
 #define M_OPL_SubGhzReceiverMenuItemArray_t() \
     ARRAY_OPLIST(SubGhzReceiverMenuItemArray, M_POD_OPLIST)
@@ -186,7 +186,7 @@ void subghz_view_receiver_add_item_to_menu(
             item_menu->time = furi_string_alloc_set(time);
             item_menu->item_str = furi_string_alloc_set(name);
             item_menu->type = type;
-            if(model->idx == model->history_item - 1) {
+            if((model->idx == model->history_item - 1)) {
                 model->history_item++;
                 model->idx++;
                 subghz_view_receiver_show_time_moment(subghz_receiver);

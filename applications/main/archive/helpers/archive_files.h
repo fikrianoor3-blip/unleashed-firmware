@@ -23,7 +23,6 @@ typedef enum {
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
     ArchiveFileTypeAppOrJs,
-    ArchiveFileTypeSetting,
     ArchiveFileTypeLoading,
 } ArchiveFileTypeEnum;
 

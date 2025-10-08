@@ -1,44 +1,75 @@
-## Main changes
-- Current API: 87.0
-* SubGHz: Add **Elplast 18bit** static code protocol (hello Hackcat ^_^)
-* SubGHz: Try to **decode BFT** (2 buttons remotes only) **on the fly** in regular Read mode (no more KL Unknown and all of that for free?!) (for 4 button remote follow docs [here](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md))
-* SubGHz: **Tune Linear** (edited by @WillyJL in PR #919 #920) (add better EZCode support) and **Dickert MAHS** protocol decoders
-* SubGHz: RAW protocol fixes (by @WillyJL)
-* SubGHz: Add **ZKTeco 430.5 MHz** add manually support
-* SubGHz: Add variant of 'Add Manually' menu with manual editing for each value (PR #909 #911 #914 | by @MrLego8-9)
-* SubGHz: Temporarily remove HoneywellSec protocol due to unstable decoding and incorrect encoding
-* OFW: NFC FeliCa: Service Directory Traverse + Dump All Unencrypted-Readable Services' Blocks
-* OFW: **NFC CLI commands**
-* OFW: LFRFID: **Show ISO-3166 Country Names For Pet Chips**
-* OFW: **JS views finished**
-* OFW: BLE: improved pairing security
-* OFW: FeliCa Emulation: Handle certain Polling commands in firmware
-* OFW PR 4287: Fix Ultralight EV1 regression (by @noproto)
-* OFW PR 4271: NFC: **Ultralight C NFC App Key Management, Dictionary Attack** (by @noproto)
-* OFW PR 4265: NFC: **Fix read crash** with unexpectedly large MFC AUTH(0) response (by @WillyJL)
-* OFW PR 4251: CLI: **Fix long delay** with quick connect/disconnect (by @WillyJL)
-* LFRFID: Add additional procotols supported by **EM4305** chipset (by @jamisonderek)
-* Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-## Other changes
-* SubGHz: Fix crash in add manually menu
-* OFW: cli: Buzzer command
-* OFW: Update demo_windows.txt
-* OFW: Fix PVS warnings
-* OFW: NFC: Amusement IC Card Parser (FeliCa Lite & Lite-S)
-* OFW: hid_app mouse clicker: make mouse button selectable
-* OFW: JS: Expose button event type in gui/widget button callback
-* OFW: NFC: MFC 1k Banapass Parser 
-* OFW: GUI Bug Fix: Number Input Save Icon
-* Add possibility to use custom buttons when using the SubGHz remote app (by @MrLego8-9)
-* Input Settings: Add Vibro Trigger option (by @956MB & @WillyJL)
-* BT Remote: Add Rename Option (by @aaronjamt & @WillyJL)
-* Simplify Bad USB BLE profile (by @aaronjamt & @WillyJL)
-* NFC: Fix incorrect Saflok year formula (by @Eltrick)
-* JS: Expose button event type in gui/widget button callback (by @WillyJL)
+## New changes
+* LFRFID: **Electra intercom protocol support** (Romania) (by @Leptopt1los | PR #750)
+* NFC: Temp fix for `iso14443_4_layer_decode_block` crash
+* NFC: CharlieCard parser (by @zacharyweiss)
+* SubGHz: FAAC RC XT - add 0xB button code on arrow buttons for programming mode
+* SubGHz: Add Manually - Sommer FM fixes
+* SubGHz: Enabled tx-rx state on unused gpio pin by default (**external amp option was removed and is enabled by default now**)
+* SubGHz: **Status output !TX/RX on the GDO2 CC1101 pin** (by @quen0n | PR #742)
+* SubGHz: Reworked saved settings (by @xMasterX and @Willy-JL)
+* Desktop: Fixes for animation unload (by @Willy-JL)
+* iButton: Updated DS1420 for latest ibutton changes
+* Misc: Allow no prefix usage of name_generator_make_detailed_datetime
+* Misc: Allow setting view dispatcher callbacks to NULL
+* Misc: Added `void` due to `-Wstrict-prototypes`
+* Misc: Some code cleanup and proper log levels in nfc parsers
+* Infrared: Allow external apps to use infrared settings (by @Willy-JL)
+* JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
+* JS: **BadUSB layout support** (by @Willy-JL)
+* JS: New Modules `widget`, `vgm` and path globals (by @jamisonderek)
+* Apps: Enhance Random Interval and Movement Functionality in HID Mouse Jiggler for Improved Stealth and Human-Like Behavior (by @gushmazuko | PR #746)
+* Apps: NFC Magic - **Gen2 writing support, Gen4 NTAG password and PACK fixes** (by @Astrrra)
+* Apps: MFKey - **fixed crashes**, add more free ram (by @noproto & @Willy-JL) 
+* Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW PR 3616: NFC: Mf Desfire fix reading big files (by gornekich)
+* OFW: iButton: fix crash when deleting some keys
+* OFW: Desktop: cleanup error popups
+* OFW: Troika parser visual fixes 
+* OFW: Fix the retry/exit confirmation prompts in iButton
+* OFW: nfc app: add legacy keys for plantain cards
+* OFW: GUI: Fix array out of bounds in menu exit 
+* OFW: add support for S(WTX) request in iso14443_4a_poller
+* OFW: Mosgortrans parser output fixes
+* OFW: BLE: Add GapPairingNone support 
+* OFW: iButton new UI 
+* OFW: FuriHal: add ADC API
+* OFW: Mf Desfire multiple file rights support
+* OFW: **Felica poller** (NFC-F)
+* OFW: Desktop/Loader: Unload animations before loading FAPs
+* OFW: JS Documentation
+* OFW: **Update radio stack to v1.19.0**
+* OFW: **Move crypto1 to helpers, add it to the public API**
+* OFW: Explain RNG differences, add FURI_HAL_RANDOM_MAX
+* OFW: Furi: Add "out of memory" and "malloc(0)" crash messages
+* OFW: IR: Fix crash on duty_cycle=1
+* OFW: **Desktop: ensure that animation is unloaded before app start (fixes some out of memory crashes)**
+* OFW: Hide unlock with reader for MFU-C 
+* OFW: fbt: fixed missing FBT_FAP_DEBUG_ELF_ROOT to dist env
+* OFW: fbt: added -Wstrict-prototypes for main firmware
+* OFW: Mifare Ultralight naming fix 
+* OFW: IR: Remember OTG state
+* OFW: Bad USB: fix crash when selecting a keyboard layout
+* OFW: L1_Mods animation update : adding VGM visual 
+* OFW: RFID Improvements 
+* OFW: Fixed plugins and UI 
+* OFW: **NFC: Fix mf desfire detect**
+* OFW: infrared_transmit.h was missing `#pragma once`
+* OFW: Show the wrong PIN Attempt count on the login screen
+* OFW: SavedStruct: Introduce saved_struct_get_metadata
+* OFW: JS CLI command
+* OFW: Add ChromeOS Bad USB demo
+* OFW: **Configurable Infrared TX output** (previous UL version is replaced with OFW version, new features added "AutoDetect" and saving settings)
+* OFW: BadUSB: BLE, media keys, Fn/Globe key commands
+* OFW: NFC: Slix privacy password reveal ->(was included in previous UL release) and **Desfire detect fix**
+* OFW: github: additional pre-upload checks for doxygen workflow
+* OFW: NFC UI fixes
+* OFW: Gui: unicode support, new canvas API
+* OFW: **Api Symbols: replace asserts with checks**
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- While reading some EMV capable cards via NFC->Read flipper may crash due to Desfire poller issue, read those cards via Extra actions->Read specific card type->EMV 
+- NFC CLI was removed with refactoring (OFW) (will be back soon)
+- Mifare Nested not ported to latest API yet, `unlshd-065` is the latest version on old NFC API that works with "nested app"
 
 ----
 
@@ -47,47 +78,44 @@
 [-> Download qFlipper (official link)](https://flipperzero.one/update)
 
 ## Please support development of the project
-
-| Service                                                                                                                                                                                        | Remark                    | QR Code                                                                                                                                                                                                                             | Link/Wallet                                                                                       |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| <img src="https://cdn.simpleicons.org/patreon/dark/white" alt="Patreon" width="14"/> **Patreon**                                                                                               |                           | <div align="center"><a href="https://github.com/user-attachments/assets/a88a90a5-28c3-40b4-864a-0c0b79494a42"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | [patreon.com/mmxdev](https://patreon.com/mmxdev)                                                  |
-| <img src="https://cdn.simpleicons.org/boosty" alt="Boosty" width="14"/> **Boosty**                                                                                                             | patreon alternative       | <div align="center"><a href="https://github.com/user-attachments/assets/893c0760-f738-42c1-acaa-916019a7bdf8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | [boosty.to/mmxdev](https://boosty.to/mmxdev)                                                      |
-| <img src="https://gist.githubusercontent.com/m-xim/255a3ef36c886dec144a58864608084c/raw/71da807b4abbd1582e511c9ea30fad27f78d642a/cloudtips_icon.svg" alt="Cloudtips" width="14"/> CloudTips    | only RU payments accepted | <div align="center"><a href="https://github.com/user-attachments/assets/5de31d6a-ef24-4d30-bd8e-c06af815332a"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | [pay.cloudtips.ru/p/7b3e9d65](https://pay.cloudtips.ru/p/7b3e9d65)                                |
-| <img src="https://raw.githubusercontent.com/gist/PonomareVlad/55c8708f11702b4df629ae61129a9895/raw/1657350724dab66f2ad68ea034c480a2df2a1dfd/YooMoney.svg" alt="YooMoney" width="14"/> YooMoney | only RU payments accepted | <div align="center"><a href="https://github.com/user-attachments/assets/33454f79-074b-4349-b453-f94fdadc3c68"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | [yoomoney.ru/fundraise/XA49mgQLPA0.221209](https://yoomoney.ru/fundraise/XA49mgQLPA0.221209)      |
-| <img src="https://cdn.simpleicons.org/tether" alt="USDT" width="14"/> USDT                                                                                                                     | TRC20                     | <div align="center"><a href="https://github.com/user-attachments/assets/0500498d-18ed-412d-a1a4-8a66d0b6f057"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`                                                              |
-| <img src="https://cdn.simpleicons.org/ethereum" alt="ETH" width="14"/> ETH                                                                                                                     | BSC/ERC20-Tokens          | <div align="center"><a href="https://github.com/user-attachments/assets/0f323e98-c524-4f41-abb2-f4f1cec83ab6"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`                                                      |
-| <img src="https://cdn.simpleicons.org/bitcoin" alt="BTC" width="14"/> BTC                                                                                                                      |                           | <div align="center"><a href="https://github.com/user-attachments/assets/5a904d45-947e-4b92-9f0f-7fbaaa7b37f8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`                                                      |
-| <img src="https://cdn.simpleicons.org/solana" alt="SOL" width="13"/> SOL                                                                                                                       | Solana/Tokens             | <div align="center"><a href="https://github.com/user-attachments/assets/ab33c5e0-dd59-497b-9c91-ceb89c36b34d"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`                                                    |
-| <img src="https://cdn.simpleicons.org/dogecoin" alt="DOGE" width="14"/> DOGE                                                                                                                   |                           | <div align="center"><a href="https://github.com/user-attachments/assets/2937edd0-5c85-4465-a444-14d4edb481c0"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`                                                              |
-| <img src="https://cdn.simpleicons.org/litecoin" alt="LTC" width="14"/> LTC                                                                                                                     |                           | <div align="center"><a href="https://github.com/user-attachments/assets/441985fe-f028-4400-83c1-c215760c1e74"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`                                                     |
-| <img src="https://bitcoincash.org/img/green/bitcoin-cash-circle.svg" alt="BCH" width="14"/> BCH                                                                                                |                           | <div align="center"><a href="https://github.com/user-attachments/assets/7f365976-19a3-4777-b17e-4bfba5f69eff"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`                                                      |
-| <img src="https://cdn.simpleicons.org/monero" alt="XMR" width="14"/> XMR                                                                                                                       | Monero                    | <div align="center"><a href="https://github.com/user-attachments/assets/96186c06-61e7-4b4d-b716-6eaf1779bfd8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn` |
-| <img src="https://cdn.simpleicons.org/ton" alt="TON" width="14"/> TON                                                                                                                          |                           | <div align="center"><a href="https://github.com/user-attachments/assets/92a57e57-7462-42b7-a342-6f22c6e600c1"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`                                                |
-
+|Service|Remark|Link/Wallet|
+|-|-|-|
+|**Patreon**||https://patreon.com/mmxdev|
+|**Boosty**|patreon alternative|https://boosty.to/mmxdev|
+|cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
+|YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
+|USDT|(TRC20)|`TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`|
+|ETH|(BSC/ERC20-Tokens)|`darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)|
+|BTC||`bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`|
+|SOL|(Solana/Tokens)|`DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`|
+|DOGE||`D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`|
+|LTC||`ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`|
+|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
+|XMR|(Monero)| `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`|
+|TON||`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
 
 #### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
-@mishamyte, ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...
+ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...
 and all other great people who supported our project and me (xMasterX), thanks to you all!
 
 
 ## **Recommended update option - Web Updater**
 
-### What `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
-What build I should download and what this name means - `flipper-z-f7-update-(version)(e / c).tgz` ? <br>
+### What `n`, `r`, `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
+What build I should download and what this name means - `flipper-z-f7-update-(version)(n / r / e / c).tgz` ? <br>
 `flipper-z` = for Flipper Zero device<br>
 `f7` = Hardware version - same for all flipper zero devices<br>
 `update` = Update package, contains updater, all assets (plugins, IR libs, etc.), and firmware itself<br>
 `(version)` = Firmware version<br>
-| Designation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) |
-|-----|:---:|:---:|
-| ` ` | ✅ |  |
-| `c` |  |  |
-| `e` | ✅ | ✅ |
+| Designation | 3 Custom Animation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) | ⚠️RGB mode* |
+|-----|:---:|:---:|:---:|:---:|
+| ` ` | ✅ | ✅ |  |  |
+| `c` | ✅ |  |  |  |
+| `n` |  | ✅ |  |  |
+| `e` | ✅ | ✅ | ✅ |  |
+| `r` | ✅ | ✅ | ✅ | ⚠️ |
 
-**To enable RGB Backlight support go into LCD & Notifications settings**
-
-⚠️RGB backlight [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not enable on non modded device!
-
+⚠️This is [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not install on non modded device!
 
 Firmware Self-update package (update from microSD) - `flipper-z-f7-update-(version).tgz` for mobile app / qFlipper / web<br>
 Archive of `scripts` folder (contains scripts for FW/plugins development) - `flipper-z-any-scripts-(version).tgz`<br>

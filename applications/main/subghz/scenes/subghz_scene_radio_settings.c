@@ -14,8 +14,8 @@ const uint32_t radio_device_value[RADIO_DEVICE_COUNT] = {
     SubGhzRadioDeviceTypeExternalCC1101,
 };
 
-#define ON_OFF_COUNT 2
-const char* const on_off_text[ON_OFF_COUNT] = {
+#define TIMESTAMP_NAMES_COUNT 2
+const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
     "OFF",
     "ON",
 };
@@ -26,7 +26,7 @@ const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "17(1W)",
 };
 
-#define DEBUG_COUNTER_COUNT 16
+#define DEBUG_COUNTER_COUNT 13
 const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+1",
     "+2",
@@ -34,26 +34,21 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+4",
     "+5",
     "+10",
-    "+50",
-    "OVFL",
-    "No",
+    "0",
     "-1",
     "-2",
     "-3",
     "-4",
     "-5",
     "-10",
-    "-50",
 };
-const int32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
+const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     1,
     2,
     3,
     4,
     5,
     10,
-    50,
-    65535,
     0,
     -1,
     -2,
@@ -61,7 +56,6 @@ const int32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     -4,
     -5,
     -10,
-    -50,
 };
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
@@ -87,22 +81,6 @@ static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
     subghz_txrx_set_debug_pin_state(subghz->txrx, index == 1);
 }
 
-static void subghz_scene_reciever_config_set_ext_amp_leds_control(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-    variable_item_set_current_value_text(item, on_off_text[index]);
-    subghz->last_settings->leds_and_amp = index == 1;
-    // Set globally in furi hal
-    furi_hal_subghz_set_ext_leds_and_amp(subghz->last_settings->leds_and_amp);
-    subghz_last_settings_save(subghz->last_settings);
-    // reinit external device
-    const SubGhzRadioDeviceType current = subghz_txrx_radio_device_get(subghz->txrx);
-    if(current != SubGhzRadioDeviceTypeInternal) {
-        subghz_txrx_radio_device_set(subghz->txrx, SubGhzRadioDeviceTypeInternal);
-        subghz_txrx_radio_device_set(subghz->txrx, current);
-    }
-}
-
 static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
@@ -114,7 +92,7 @@ static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* 
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    variable_item_set_current_value_text(item, on_off_text[index]);
+    variable_item_set_current_value_text(item, timestamp_names_text[index]);
 
     subghz->last_settings->protocol_file_names = (index == 1);
     subghz_last_settings_save(subghz->last_settings);
@@ -124,7 +102,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     SubGhz* subghz = context;
 
     VariableItemList* variable_item_list = subghz->variable_item_list;
-    int32_t value_index;
+    uint8_t value_index;
     VariableItem* item;
 
     uint8_t value_count_device = RADIO_DEVICE_COUNT;
@@ -145,12 +123,12 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     item = variable_item_list_add(
         variable_item_list,
         "Protocol Names",
-        ON_OFF_COUNT,
+        TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);
     value_index = subghz->last_settings->protocol_file_names;
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, on_off_text[value_index]);
+    variable_item_set_current_value_text(item, timestamp_names_text[value_index]);
 
     item = variable_item_list_add(
         variable_item_list,
@@ -158,7 +136,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3,
         subghz_scene_receiver_config_set_debug_counter,
         subghz);
-    value_index = value_index_int32(
+    value_index = value_index_uint32(
         furi_hal_subghz_get_rolling_counter_mult(),
         debug_counter_val,
         furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3);
@@ -168,16 +146,6 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     variable_item_set_current_value_text(item, debug_counter_text[value_index]);
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        item = variable_item_list_add(
-            variable_item_list,
-            "Ext Amp & LEDs",
-            ON_OFF_COUNT,
-            subghz_scene_reciever_config_set_ext_amp_leds_control,
-            subghz);
-        value_index = subghz->last_settings->leds_and_amp ? 1 : 0;
-        variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, on_off_text[value_index]);
-
         item = variable_item_list_add(
             variable_item_list,
             "Debug Pin",

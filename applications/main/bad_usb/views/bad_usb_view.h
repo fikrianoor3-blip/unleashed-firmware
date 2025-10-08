@@ -23,6 +23,4 @@ void bad_usb_view_set_layout(BadUsb* bad_usb, const char* layout);
 
 void bad_usb_view_set_state(BadUsb* bad_usb, BadUsbState* st);
 
-void bad_usb_view_set_interface(BadUsb* bad_usb, BadUsbHidInterface interface);
-
 bool bad_usb_view_is_idle_state(BadUsb* bad_usb);

@@ -29,14 +29,7 @@ bool nfc_scene_save_confirm_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             consumed = true;
         } else if(event.event == DialogExResultLeft) {
-            NfcSceneSaveConfirmState scene_state =
-                scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSaveConfirm);
-
-            NfcScene scene = scene_state == NfcSceneSaveConfirmStateCrackNonces ?
-                                 NfcSceneMfClassicMfkeyComplete :
-                                 NfcSceneMfClassicDetectReader;
-
-            scene_manager_next_scene(nfc->scene_manager, scene);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
             consumed = true;
         }
     }

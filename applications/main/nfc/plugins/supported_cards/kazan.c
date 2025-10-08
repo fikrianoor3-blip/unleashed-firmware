@@ -223,7 +223,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
             break;
         }
 
-        if(error == MfClassicErrorPartialRead) {
+        if(!mf_classic_is_card_read(data)) {
             error = mf_classic_poller_sync_read(nfc, &keys_v2, data);
             if(error == MfClassicErrorNotPresent) {
                 FURI_LOG_W(TAG, "Failed to read data: keys_v1");
@@ -231,7 +231,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
             }
         }
 
-        if(error == MfClassicErrorPartialRead) {
+        if(!mf_classic_is_card_read(data)) {
             error = mf_classic_poller_sync_read(nfc, &keys_v3, data);
             if(error == MfClassicErrorNotPresent) {
                 FURI_LOG_W(TAG, "Failed to read data: keys_v3");
@@ -241,7 +241,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = (error == MfClassicErrorNone);
+        is_read = mf_classic_is_card_read(data);
     } while(false);
 
     mf_classic_free(data);
@@ -409,6 +409,6 @@ static const FlipperAppPluginDescriptor kazan_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* kazan_plugin_ep(void) {
+const FlipperAppPluginDescriptor* kazan_plugin_ep() {
     return &kazan_plugin_descriptor;
 }

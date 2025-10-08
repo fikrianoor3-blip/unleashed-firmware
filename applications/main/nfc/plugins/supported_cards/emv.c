@@ -199,6 +199,6 @@ static const FlipperAppPluginDescriptor emv_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* emv_plugin_ep(void) {
+const FlipperAppPluginDescriptor* emv_plugin_ep() {
     return &emv_plugin_descriptor;
 }

@@ -1,5 +1,5 @@
-#include <furi.h>
-#include "../test.h" // IWYU pragma: keep
+#include <furi.c>
+#include "../test.h"
 #include <update_util/resources/manifest.h>
 
 #define TAG "Manifest"

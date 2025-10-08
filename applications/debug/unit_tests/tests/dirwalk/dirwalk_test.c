@@ -1,4 +1,4 @@
-#include "../test.h" // IWYU pragma: keep
+#include "../test.h"
 #include <furi.h>
 #include <m-dict.h>
 #include <toolbox/dir_walk.h>

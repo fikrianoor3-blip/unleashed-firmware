@@ -61,6 +61,7 @@ static LoaderApplicationsApp* loader_applications_app_alloc(void) {
     app->loading = loading_alloc();
 
     view_holder_attach_to_gui(app->view_holder, app->gui);
+    view_holder_set_view(app->view_holder, loading_get_view(app->loading));
 
     return app;
 } //-V773
@@ -120,7 +121,7 @@ static void loader_pubsub_callback(const void* message, void* context) {
     const LoaderEvent* event = message;
     const FuriThreadId thread_id = (FuriThreadId)context;
 
-    if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
+    if(event->type == LoaderEventTypeApplicationStopped) {
         furi_thread_flags_set(thread_id, APPLICATION_STOP_EVENT);
     }
 }
@@ -141,7 +142,6 @@ static void
     }
 
     furi_pubsub_unsubscribe(loader_get_pubsub(app->loader), subscription);
-    furi_thread_flags_clear(APPLICATION_STOP_EVENT);
 }
 
 static int32_t loader_applications_thread(void* p) {
@@ -149,7 +149,7 @@ static int32_t loader_applications_thread(void* p) {
     LoaderApplicationsApp* app = loader_applications_app_alloc();
 
     // start loading animation
-    view_holder_set_view(app->view_holder, loading_get_view(app->loading));
+    view_holder_start(app->view_holder);
 
     while(loader_applications_select_app(app)) {
         if(!furi_string_end_with(app->file_path, ".js")) {
@@ -161,7 +161,7 @@ static int32_t loader_applications_thread(void* p) {
     }
 
     // stop loading animation
-    view_holder_set_view(app->view_holder, NULL);
+    view_holder_stop(app->view_holder);
 
     loader_applications_app_free(app);
 

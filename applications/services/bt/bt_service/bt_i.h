@@ -32,9 +32,6 @@ typedef enum {
     BtMessageTypeSetProfile,
     BtMessageTypeDisconnect,
     BtMessageTypeForgetBondedDevices,
-    BtMessageTypeGetSettings,
-    BtMessageTypeSetSettings,
-    BtMessageTypeReloadKeysSettings,
 } BtMessageType;
 
 typedef struct {
@@ -52,8 +49,6 @@ typedef union {
     } profile;
     FuriHalBleProfileParams profile_params;
     BtKeyStorageUpdateData key_storage_data;
-    BtSettings* settings;
-    const BtSettings* csettings;
 } BtMessageData;
 
 typedef struct {
@@ -91,15 +86,3 @@ struct Bt {
     uint32_t pin;
     bool suppress_pin_screen;
 };
-
-/** Open a new RPC connection
- *
- * @param bt                    Bt instance
- */
-void bt_open_rpc_connection(Bt* bt);
-
-/** Close the active RPC connection
- *
- * @param bt                    Bt instance
- */
-void bt_close_rpc_connection(Bt* bt);

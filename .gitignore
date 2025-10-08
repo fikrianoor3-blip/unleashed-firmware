@@ -12,9 +12,6 @@ compile_commands.json
 # JetBrains IDEs
 .idea/
 
-# Sublime Text
-.sublime-project.sublime-workspace
-
 # Python VirtEnvironments
 .env
 .venv
@@ -45,6 +42,9 @@ null.d
 .sconsign.dblite
 
 
+# Visual Studio Code
+/.vscode
+
 # bundle output
 /dist
 /artifacts-default
@@ -70,10 +70,3 @@ PVS-Studio.log
 .gdbinit
 
 /fbt_options_local.py
-
-# JS packages
-node_modules/
-
-# cli_perf script output in case of errors
-/block.bin
-/return_block.bin

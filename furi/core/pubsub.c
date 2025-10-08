@@ -1,4 +1,5 @@
 #include "pubsub.h"
+#include "memmgr.h"
 #include "check.h"
 #include "mutex.h"
 
@@ -20,6 +21,7 @@ FuriPubSub* furi_pubsub_alloc(void) {
     FuriPubSub* pubsub = malloc(sizeof(FuriPubSub));
 
     pubsub->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    furi_assert(pubsub->mutex);
 
     FuriPubSubSubscriptionList_init(pubsub->items);
 

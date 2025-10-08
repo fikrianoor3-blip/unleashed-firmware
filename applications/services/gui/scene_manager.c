@@ -2,14 +2,15 @@
 #include <furi.h>
 
 SceneManager* scene_manager_alloc(const SceneManagerHandlers* app_scene_handlers, void* context) {
-    furi_check(app_scene_handlers);
+    furi_check(context);
 
-    SceneManager* scene_manager =
-        malloc(sizeof(SceneManager) + (sizeof(AppScene) * app_scene_handlers->scene_num));
+    SceneManager* scene_manager = malloc(sizeof(SceneManager));
     // Set SceneManager context and scene handlers
     scene_manager->context = context;
     scene_manager->scene_handlers = app_scene_handlers;
-    // Initialize ScaneManager array for navigation
+    // Allocate all scenes
+    scene_manager->scene = malloc(sizeof(AppScene) * app_scene_handlers->scene_num);
+    // Initialize SceneManager array for navigation
     SceneManagerIdStack_init(scene_manager->scene_id_stack);
 
     return scene_manager;
@@ -20,6 +21,8 @@ void scene_manager_free(SceneManager* scene_manager) {
 
     // Clear SceneManager array
     SceneManagerIdStack_clear(scene_manager->scene_id_stack);
+    // Clear allocated scenes
+    free(scene_manager->scene);
     // Free SceneManager structure
     free(scene_manager);
 }
@@ -228,11 +231,6 @@ bool scene_manager_search_and_switch_to_another_scene(
     } else {
         return false;
     }
-}
-
-uint32_t scene_manager_get_current_scene(SceneManager* scene_manager) {
-    furi_check(scene_manager);
-    return *SceneManagerIdStack_back(scene_manager->scene_id_stack);
 }
 
 void scene_manager_stop(SceneManager* scene_manager) {

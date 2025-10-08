@@ -1,6 +1,3 @@
-// Script cannot work without subghz module so check before
-checkSdkFeatures(["subghz"]);
-
 let subghz = require("subghz");
 subghz.setup();
 
@@ -32,17 +29,9 @@ changeFrequency(433920000);
 printRXline();
 delay(1000);
 
-print("Sending 0.sub")
-subghz.transmitFile("/ext/subghz/0.sub");
-// Can also specify repeat count: subghz.transmitFile(path, repeat)
-// If not provided, defaults to 1 repeat for RAW and 10 repeats for parsed
-// These 10 repeats by default are to simulate holding the button on remote
-print("Send success");
+let result = subghz.transmitFile("/ext/subghz/0.sub");
+print(result ? "Send success" : "Send failed");
 delay(1000);
 
 changeFrequency(315000000);
 printRXline();
-
-// Optional, done automatically at script end
-subghz.end()
-// But can be used to setup again, which will retry to detect external modules

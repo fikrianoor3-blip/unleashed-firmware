@@ -15,16 +15,17 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
     } else {
         for(size_t i = 0; i < COUNT_OF(known_ext); i++) {
             if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
-            if(furi_string_end_withi(file->path, known_ext[i])) {
-                if((i == ArchiveFileTypeBadUsb) || (i == ArchiveFileTypeSubGhzRemote)) {
-                    if((furi_string_search(file->path, EXT_PATH("badusb")) == 0) ||
-                       (furi_string_search(file->path, ANY_PATH("badusb")) == 0)) {
-                        file->type = ArchiveFileTypeBadUsb;
+            if(furi_string_end_with(file->path, known_ext[i])) {
+                if(i == ArchiveFileTypeBadUsb) {
+                    if(furi_string_search(
+                           file->path, archive_get_default_path(ArchiveTabBadUsb)) == 0) {
+                        file->type = i;
                         return; // *.txt file is a BadUSB script only if it is in BadUSB folder
                     }
-                    if((furi_string_search(file->path, EXT_PATH("subghz_remote")) == 0) ||
-                       (furi_string_search(file->path, ANY_PATH("subghz_remote")) == 0)) {
-                        file->type = ArchiveFileTypeSubGhzRemote;
+                } else if(i == ArchiveFileTypeSubGhzRemote) {
+                    if(furi_string_search(
+                           file->path, archive_get_default_path(ArchiveTabSubGhzRemote)) == 0) {
+                        file->type = i;
                         return; // *.txt file is a SubRem map file only if it is in SubRem folder
                     }
                 } else {
@@ -79,7 +80,6 @@ void archive_file_append(const char* path, const char* format, ...) {
         storage_file_write(file, furi_string_get_cstr(string), furi_string_size(string));
     }
 
-    furi_string_free(string);
     storage_file_close(file);
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);

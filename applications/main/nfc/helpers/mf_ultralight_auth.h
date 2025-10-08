@@ -17,7 +17,6 @@ typedef enum {
 typedef struct {
     MfUltralightAuthType type;
     MfUltralightAuthPassword password;
-    MfUltralightC3DesAuthKey tdes_key;
     MfUltralightAuthPack pack;
 } MfUltralightAuth;
 

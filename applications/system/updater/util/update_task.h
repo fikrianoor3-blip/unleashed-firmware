@@ -9,14 +9,14 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-#define UPDATE_DELAY_OPERATION_OK    10
+#define UPDATE_DELAY_OPERATION_OK 10
 #define UPDATE_DELAY_OPERATION_ERROR INT_MAX
 
 typedef enum {
     UpdateTaskStageProgress = 0,
 
     UpdateTaskStageReadManifest,
-    UpdateTaskStageIntBackup,
+    UpdateTaskStageLfsBackup,
 
     UpdateTaskStageRadioImageValidate,
     UpdateTaskStageRadioErase,
@@ -30,10 +30,8 @@ typedef enum {
     UpdateTaskStageFlashWrite,
     UpdateTaskStageFlashValidate,
 
-    UpdateTaskStageIntRestore,
-    UpdateTaskStageResourcesFileCleanup,
-    UpdateTaskStageResourcesDirCleanup,
-    UpdateTaskStageResourcesFileUnpack,
+    UpdateTaskStageLfsRestore,
+    UpdateTaskStageResourcesUpdate,
     UpdateTaskStageSplashscreenInstall,
 
     UpdateTaskStageCompleted,

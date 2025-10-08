@@ -1,5 +1,5 @@
 #include <furi.h>
-#include "../test.h" // IWYU pragma: keep
+#include "../test.h"
 
 #include <datetime/datetime.h>
 

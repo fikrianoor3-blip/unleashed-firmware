@@ -11,6 +11,7 @@ App(
         "dialogs",
     ],
     provides=[
+        "subghz_start",
         "subghz_load_dangerous_settings",
     ],
     icon="A_Sub1ghz_14",
@@ -23,12 +24,12 @@ App(
 )
 
 App(
-    appid="cli_subghz",
+    appid="subghz_start",
     targets=["f7"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="cli_subghz_ep",
-    requires=["cli"],
-    sources=["subghz_cli.c", "helpers/subghz_chat.c"],
+    apptype=FlipperAppType.STARTUP,
+    entry_point="subghz_on_system_start",
+    requires=["subghz"],
+    order=40,
 )
 
 App(

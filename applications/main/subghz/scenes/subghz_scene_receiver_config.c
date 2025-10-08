@@ -8,9 +8,9 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexHopping,
     SubGhzSettingIndexModulation,
     SubGhzSettingIndexBinRAW,
+    SubGhzSettingIndexIgnoreStarline,
     SubGhzSettingIndexIgnoreCars,
-    SubGhzSettingIndexIgnoreAlarms,
-    SubGhzSettingIndexIgnoreSensors,
+    SubGhzSettingIndexIgnoreMagellan,
     SubGhzSettingIndexIgnorePrinceton,
     SubGhzSettingIndexIgnoreNiceFlorS,
     SubGhzSettingIndexDeleteOldSignals,
@@ -36,37 +36,6 @@ const char* const raw_threshold_rssi_text[RAW_THRESHOLD_RSSI_COUNT] = {
 
 };
 const float raw_threshold_rssi_value[RAW_THRESHOLD_RSSI_COUNT] = {
-    -90.0f,
-    -85.0f,
-    -80.0f,
-    -75.0f,
-    -70.0f,
-    -65.0f,
-    -60.0f,
-    -55.0f,
-    -50.0f,
-    -45.0f,
-    -40.0f,
-};
-
-#define HOPPING_MODE_COUNT 12
-const char* const hopping_mode_text[HOPPING_MODE_COUNT] = {
-    "OFF",
-    "-90dBm",
-    "-85dBm",
-    "-80dBm",
-    "-75dBm",
-    "-70dBm",
-    "-65dBm",
-    "-60dBm",
-    "-55dBm",
-    "-50dBm",
-    "-45dBm",
-    "-40dBm",
-
-};
-const float hopping_mode_value[HOPPING_MODE_COUNT] = {
-    NAN,
     -90.0f,
     -85.0f,
     -80.0f,
@@ -152,19 +121,18 @@ uint8_t subghz_scene_receiver_config_next_preset(const char* preset_name, void* 
     return index;
 }
 
-uint8_t subghz_scene_receiver_config_hopper_value_index(void* context) {
+SubGhzHopperState subghz_scene_receiver_config_hopper_value_index(void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
 
     if(subghz_txrx_hopper_get_state(subghz->txrx) == SubGhzHopperStateOFF) {
-        return 0;
+        return SubGhzHopperStateOFF;
     } else {
         variable_item_set_current_value_text(
-            variable_item_list_get(subghz->variable_item_list, SubGhzSettingIndexFrequency),
+            (VariableItem*)scene_manager_get_scene_state(
+                subghz->scene_manager, SubGhzSceneReceiverConfig),
             " -----");
-        return value_index_float(
-            subghz->last_settings->hopping_threshold, hopping_mode_value, HOPPING_MODE_COUNT);
-        ;
+        return SubGhzHopperStateRunning;
     }
 }
 
@@ -220,16 +188,16 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
     subghz->last_settings->preset_index = index;
 }
 
-static void subghz_scene_receiver_config_set_hopping(VariableItem* item) {
+static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
+    SubGhzHopperState index = variable_item_get_current_value_index(item);
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
-    VariableItem* frequency_item =
-        variable_item_list_get(subghz->variable_item_list, SubGhzSettingIndexFrequency);
+    VariableItem* frequency_item = (VariableItem*)scene_manager_get_scene_state(
+        subghz->scene_manager, SubGhzSceneReceiverConfig);
 
-    variable_item_set_current_value_text(item, hopping_mode_text[index]);
+    variable_item_set_current_value_text(item, combobox_text[(uint8_t)index]);
 
-    if(index == 0) {
+    if(index == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
         uint32_t frequency = subghz_setting_get_default_frequency(setting);
         SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
@@ -251,18 +219,13 @@ static void subghz_scene_receiver_config_set_hopping(VariableItem* item) {
             preset.data_size);
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
-        variable_item_set_item_label(item, "Hopping");
     } else {
         variable_item_set_current_value_text(frequency_item, " -----");
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
-
-        variable_item_set_item_label(item, "Hopping RSSI");
     }
-    subghz->last_settings->enable_hopping = index != 0;
-    subghz->last_settings->hopping_threshold = hopping_mode_value[index];
-    subghz_txrx_hopper_set_state(
-        subghz->txrx, index != 0 ? SubGhzHopperStateRunning : SubGhzHopperStateOFF);
+    subghz->last_settings->enable_hopping = index != SubGhzHopperStateOFF;
+    subghz_txrx_hopper_set_state(subghz->txrx, index);
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
@@ -301,16 +264,16 @@ static inline bool subghz_scene_receiver_config_ignore_filter_get_index(
     return READ_BIT(filter, flag) > 0;
 }
 
-static void subghz_scene_receiver_config_set_cars(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Cars);
+static void subghz_scene_receiver_config_set_starline(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_StarLine);
 }
 
-static void subghz_scene_receiver_config_set_alarms(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Alarms);
+static void subghz_scene_receiver_config_set_auto_alarms(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_AutoAlarms);
 }
 
-static void subghz_scene_receiver_config_set_sensors(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Sensors);
+static void subghz_scene_receiver_config_set_magellan(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magellan);
 }
 
 static void subghz_scene_receiver_config_set_princeton(VariableItem* item) {
@@ -417,16 +380,16 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
        SubGhzCustomEventManagerSet) {
         // Hopping
-        value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
         item = variable_item_list_add(
             subghz->variable_item_list,
-            value_index ? "Hopping RSSI" : "Hopping",
-            HOPPING_MODE_COUNT,
-            subghz_scene_receiver_config_set_hopping,
+            "Hopping",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_hopping_running,
             subghz);
+        value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
 
         variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, hopping_mode_text[value_index]);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
     }
 
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
@@ -447,37 +410,37 @@ void subghz_scene_receiver_config_on_enter(void* context) {
        SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
+            "Ignore Starline",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_starline,
+            subghz);
+
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_StarLine);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
             "Ignore Cars",
             COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_cars,
+            subghz_scene_receiver_config_set_auto_alarms,
             subghz);
 
         value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_Cars);
+            subghz->ignore_filter, SubGhzProtocolFlag_AutoAlarms);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Alarms",
+            "Ignore Magellan",
             COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_alarms,
+            subghz_scene_receiver_config_set_magellan,
             subghz);
 
         value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_Alarms);
-        variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, combobox_text[value_index]);
-
-        item = variable_item_list_add(
-            subghz->variable_item_list,
-            "Ignore Sensors",
-            COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_sensors,
-            subghz);
-
-        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_Sensors);
+            subghz->ignore_filter, SubGhzProtocolFlag_Magellan);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
 

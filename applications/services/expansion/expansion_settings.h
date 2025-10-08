@@ -25,16 +25,18 @@ typedef struct {
 /**
  * @brief Load expansion module support settings from file.
  *
- * @param[in,out] settings pointer to an ExpansionSettings instance to load settings into.
+ * @param[out] settings pointer to an ExpansionSettings instance to load settings into.
+ * @returns true if the settings were successfully loaded, false otherwise.
  */
-void expansion_settings_load(ExpansionSettings* settings);
+bool expansion_settings_load(ExpansionSettings* settings);
 
 /**
  * @brief Save expansion module support settings to file.
  *
  * @param[in] settings pointer to an ExpansionSettings instance to save settings from.
+ * @returns true if the settings were successfully saved, false otherwise.
  */
-void expansion_settings_save(const ExpansionSettings* settings);
+bool expansion_settings_save(const ExpansionSettings* settings);
 
 #ifdef __cplusplus
 }

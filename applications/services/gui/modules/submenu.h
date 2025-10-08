@@ -14,7 +14,6 @@ extern "C" {
 /** Submenu anonymous structure */
 typedef struct Submenu Submenu;
 typedef void (*SubmenuItemCallback)(void* context, uint32_t index);
-typedef void (*SubmenuItemCallbackEx)(void* context, InputType input_type, uint32_t index);
 
 /** Allocate and initialize submenu 
  * 
@@ -74,22 +73,6 @@ void submenu_add_lockable_item(
     bool locked,
     const char* locked_message);
 
-/** Add item to submenu with extended press events
- *
- * @param      submenu           Submenu instance
- * @param      label             menu item label
- * @param      index             menu item index, used for callback, may be
- *                               the same with other items
- * @param      callback          menu item extended callback
- * @param      callback_context  menu item callback context
- */
-void submenu_add_item_ex(
-    Submenu* submenu,
-    const char* label,
-    uint32_t index,
-    SubmenuItemCallbackEx callback,
-    void* callback_context);
-
 /** Change label of an existing item
  * 
  * @param      submenu  Submenu instance
@@ -97,14 +80,6 @@ void submenu_add_item_ex(
  * @param      label    The new label
  */
 void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label);
-
-/** Remove item from submenu
- *
- * @param      submenu           Submenu instance
- * @param      index             menu item index, used for callback, may be
- *                               the same with other items, first one is removed
- */
-void submenu_remove_item(Submenu* submenu, uint32_t index);
 
 /** Remove all items from submenu
  *
@@ -128,14 +103,13 @@ uint32_t submenu_get_selected_item(Submenu* submenu);
 void submenu_set_selected_item(Submenu* submenu, uint32_t index);
 
 /** Set optional header for submenu
- * Must be called before adding items OR after adding items and before set_selected_item()
  *
  * @param      submenu  Submenu instance
  * @param      header   header to set
  */
 void submenu_set_header(Submenu* submenu, const char* header);
 
-/** Set submenu orientation
+/** Set Orientation
  *
  * @param      submenu  Submenu instance
  * @param      orientation  either vertical or horizontal

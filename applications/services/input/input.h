@@ -6,15 +6,12 @@
 #pragma once
 
 #include <furi_hal_resources.h>
-#include "input_settings.h"
-#include <storage/storage.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define RECORD_INPUT_EVENTS            "input_events"
-#define RECORD_INPUT_SETTINGS          "input_settings"
+#define RECORD_INPUT_EVENTS "input_events"
 #define INPUT_SEQUENCE_SOURCE_HARDWARE (0u)
 #define INPUT_SEQUENCE_SOURCE_SOFTWARE (1u)
 
@@ -35,7 +32,7 @@ typedef struct {
     union {
         uint32_t sequence;
         struct {
-            uint8_t sequence_source   : 2;
+            uint8_t sequence_source : 2;
             uint32_t sequence_counter : 30;
         };
     };

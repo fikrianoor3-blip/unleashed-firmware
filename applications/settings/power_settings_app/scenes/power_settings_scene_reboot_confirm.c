@@ -49,12 +49,10 @@ bool power_settings_scene_reboot_confirm_on_event(void* context, SceneManagerEve
         if(event.event == DialogExResultLeft) {
             scene_manager_previous_scene(app->scene_manager);
         } else if(event.event == DialogExResultRight) {
-            Power* power = furi_record_open(RECORD_POWER);
-
             if(reboot_type == RebootTypeDFU) {
-                power_reboot(power, PowerBootModeDfu);
+                power_reboot(PowerBootModeDfu);
             } else {
-                power_reboot(power, PowerBootModeNormal);
+                power_reboot(PowerBootModeNormal);
             }
         }
         consumed = true;

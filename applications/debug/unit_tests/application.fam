@@ -4,10 +4,10 @@ App(
     entry_point="unit_tests_on_system_start",
     sources=["unit_tests.c", "test_runner.c", "unit_test_api_table.cpp"],
     cdefines=["APP_UNIT_TESTS"],
-    requires=["system_settings", "cli_subghz"],
+    requires=["system_settings", "subghz_start"],
     provides=["delay_test"],
     resources="resources",
-    order=30,
+    order=100,
 )
 
 App(
@@ -18,7 +18,7 @@ App(
     entry_point="delay_test_app",
     stack_size=1 * 1024,
     requires=["unit_tests"],
-    order=30,
+    order=110,
 )
 
 App(
@@ -216,47 +216,6 @@ App(
 App(
     appid="test_compress",
     sources=["tests/common/*.c", "tests/compress/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests"],
-)
-
-App(
-    appid="test_js",
-    sources=["tests/common/*.c", "tests/js/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests", "js_app"],
-)
-
-App(
-    appid="test_strint",
-    sources=["tests/common/*.c", "tests/strint/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests"],
-)
-
-App(
-    appid="test_pipe",
-    sources=["tests/common/*.c", "tests/pipe/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests"],
-)
-
-App(
-    appid="test_args",
-    sources=["tests/common/*.c", "tests/args/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests"],
-)
-
-
-App(
-    appid="test_notification",
-    sources=["tests/common/*.c", "tests/notification/*.c"],
     apptype=FlipperAppType.PLUGIN,
     entry_point="get_api",
     requires=["unit_tests"],

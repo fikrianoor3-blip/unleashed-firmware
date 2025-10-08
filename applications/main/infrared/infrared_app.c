@@ -1,6 +1,6 @@
 #include "infrared_app_i.h"
 
-#include <power/power_service/power.h>
+#include <furi_hal_power.h>
 
 #include <string.h>
 #include <toolbox/path.h>
@@ -10,7 +10,7 @@
 #define TAG "InfraredApp"
 
 #define INFRARED_TX_MIN_INTERVAL_MS (50U)
-#define INFRARED_TASK_STACK_SIZE    (2048UL)
+#define INFRARED_TASK_STACK_SIZE (2048UL)
 
 static const NotificationSequence*
     infrared_notification_sequences[InfraredNotificationMessageCount] = {
@@ -78,19 +78,6 @@ static void infrared_rpc_command_callback(const RpcAppSystemEvent* event, void* 
             infrared->app_state.current_button_index = event->data.i32;
             view_dispatcher_send_custom_event(
                 infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPressIndex);
-        }
-    } else if(event->type == RpcAppEventTypeButtonPressRelease) {
-        furi_assert(
-            event->data.type == RpcAppSystemEventDataTypeString ||
-            event->data.type == RpcAppSystemEventDataTypeInt32);
-        if(event->data.type == RpcAppSystemEventDataTypeString) {
-            furi_string_set(infrared->button_name, event->data.string);
-            view_dispatcher_send_custom_event(
-                infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPressReleaseName);
-        } else {
-            infrared->app_state.current_button_index = event->data.i32;
-            view_dispatcher_send_custom_event(
-                infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPressReleaseIndex);
         }
     } else if(event->type == RpcAppEventTypeButtonRelease) {
         view_dispatcher_send_custom_event(
@@ -163,6 +150,7 @@ static InfraredApp* infrared_alloc(void) {
     infrared->gui = furi_record_open(RECORD_GUI);
 
     ViewDispatcher* view_dispatcher = infrared->view_dispatcher;
+    view_dispatcher_enable_queue(view_dispatcher);
     view_dispatcher_set_event_callback_context(view_dispatcher, infrared);
     view_dispatcher_set_custom_event_callback(view_dispatcher, infrared_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(view_dispatcher, infrared_back_event_callback);
@@ -301,7 +289,7 @@ static void infrared_free(InfraredApp* infrared) {
     free(infrared);
 }
 
-InfraredErrorCode infrared_add_remote_with_button(
+bool infrared_add_remote_with_button(
     const InfraredApp* infrared,
     const char* button_name,
     const InfraredSignal* signal) {
@@ -314,23 +302,21 @@ InfraredErrorCode infrared_add_remote_with_button(
     furi_string_cat_printf(
         new_path, "/%s%s", furi_string_get_cstr(new_name), INFRARED_APP_EXTENSION);
 
-    InfraredErrorCode error = InfraredErrorCodeNone;
+    bool success = false;
 
     do {
-        error = infrared_remote_create(remote, furi_string_get_cstr(new_path));
-        if(INFRARED_ERROR_PRESENT(error)) break;
-
-        error = infrared_remote_append_signal(remote, signal, button_name);
+        if(!infrared_remote_create(remote, furi_string_get_cstr(new_path))) break;
+        if(!infrared_remote_append_signal(remote, signal, button_name)) break;
+        success = true;
     } while(false);
 
     furi_string_free(new_name);
     furi_string_free(new_path);
 
-    return error;
+    return success;
 }
 
-InfraredErrorCode
-    infrared_rename_current_remote(const InfraredApp* infrared, const char* new_name) {
+bool infrared_rename_current_remote(const InfraredApp* infrared, const char* new_name) {
     InfraredRemote* remote = infrared->remote;
     const char* old_path = infrared_remote_get_path(remote);
 
@@ -350,13 +336,12 @@ InfraredErrorCode
     path_append(new_path_fstr, furi_string_get_cstr(new_name_fstr));
     furi_string_cat(new_path_fstr, INFRARED_APP_EXTENSION);
 
-    const InfraredErrorCode error =
-        infrared_remote_rename(remote, furi_string_get_cstr(new_path_fstr));
+    const bool success = infrared_remote_rename(remote, furi_string_get_cstr(new_path_fstr));
 
     furi_string_free(new_name_fstr);
     furi_string_free(new_path_fstr);
 
-    return error;
+    return success;
 }
 
 void infrared_tx_start(InfraredApp* infrared) {
@@ -389,16 +374,17 @@ void infrared_tx_start(InfraredApp* infrared) {
     infrared->app_state.is_transmitting = true;
 }
 
-InfraredErrorCode infrared_tx_start_button_index(InfraredApp* infrared, size_t button_index) {
+void infrared_tx_start_button_index(InfraredApp* infrared, size_t button_index) {
     furi_assert(button_index < infrared_remote_get_signal_count(infrared->remote));
 
-    InfraredErrorCode error =
-        infrared_remote_load_signal(infrared->remote, infrared->current_signal, button_index);
-
-    if(!INFRARED_ERROR_PRESENT(error)) {
+    if(infrared_remote_load_signal(infrared->remote, infrared->current_signal, button_index)) {
         infrared_tx_start(infrared);
+    } else {
+        infrared_show_error_message(
+            infrared,
+            "Failed to load\n\"%s\"",
+            infrared_remote_get_signal_name(infrared->remote, button_index));
     }
-    return error;
 }
 
 void infrared_tx_stop(InfraredApp* infrared) {
@@ -415,33 +401,13 @@ void infrared_tx_stop(InfraredApp* infrared) {
     infrared->app_state.last_transmit_time = furi_get_tick();
 }
 
-void infrared_tx_send_once(InfraredApp* infrared) {
-    if(infrared->app_state.is_transmitting) {
-        return;
-    }
-
-    dolphin_deed(DolphinDeedIrSend);
-    infrared_signal_transmit(infrared->current_signal);
-}
-
-InfraredErrorCode infrared_tx_send_once_button_index(InfraredApp* infrared, size_t button_index) {
-    furi_assert(button_index < infrared_remote_get_signal_count(infrared->remote));
-
-    InfraredErrorCode error = infrared_remote_load_signal(
-        infrared->remote, infrared->current_signal, infrared->app_state.current_button_index);
-    if(!INFRARED_ERROR_PRESENT(error)) {
-        infrared_tx_send_once(infrared);
-    }
-
-    return error;
-}
 void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback) {
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewLoading);
     furi_thread_set_callback(infrared->task_thread, callback);
     furi_thread_start(infrared->task_thread);
 }
 
-InfraredErrorCode infrared_blocking_task_finalize(InfraredApp* infrared) {
+bool infrared_blocking_task_finalize(InfraredApp* infrared) {
     furi_thread_join(infrared->task_thread);
     return furi_thread_get_return_code(infrared->task_thread);
 }
@@ -492,12 +458,12 @@ void infrared_set_tx_pin(InfraredApp* infrared, FuriHalInfraredTxPin tx_pin) {
 }
 
 void infrared_enable_otg(InfraredApp* infrared, bool enable) {
-    Power* power = furi_record_open(RECORD_POWER);
-
-    power_enable_otg(power, enable);
+    if(enable) {
+        furi_hal_power_enable_otg();
+    } else {
+        furi_hal_power_disable_otg();
+    }
     infrared->app_state.is_otg_enabled = enable;
-
-    furi_record_close(RECORD_POWER);
 }
 
 static void infrared_load_settings(InfraredApp* infrared) {
@@ -591,18 +557,10 @@ int32_t infrared_app(void* p) {
             is_rpc_mode = true;
         } else {
             const char* file_path = (const char*)p;
-            InfraredErrorCode error = infrared_remote_load(infrared->remote, file_path);
+            is_remote_loaded = infrared_remote_load(infrared->remote, file_path);
 
-            if(!INFRARED_ERROR_PRESENT(error)) {
-                is_remote_loaded = true;
-            } else {
-                is_remote_loaded = false;
-                bool wrong_file_type = INFRARED_ERROR_CHECK(error, InfraredErrorCodeWrongFileType);
-                const char* format = wrong_file_type ?
-                                         "Library file\n\"%s\" can't be openned as a remote" :
-                                         "Failed to load\n\"%s\"";
-
-                infrared_show_error_message(infrared, format, file_path);
+            if(!is_remote_loaded) {
+                infrared_show_error_message(infrared, "Failed to load\n\"%s\"", file_path);
                 return -1;
             }
 

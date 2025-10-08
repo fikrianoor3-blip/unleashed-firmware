@@ -1,7 +1,7 @@
 #pragma once
 
 #include "helpers/subghz_types.h"
-#include "helpers/subghz_gen_info.h"
+#include "helpers/subghz_error_type.h"
 #include <lib/subghz/types.h>
 #include "subghz.h"
 #include "views/receiver.h"
@@ -40,10 +40,16 @@
 
 #include "helpers/subghz_txrx.h"
 
-#define SUBGHZ_MAX_LEN_NAME      64
-#define SUBGHZ_EXT_PRESET_NAME   true
+#define SUBGHZ_MAX_LEN_NAME 64
+#define SUBGHZ_EXT_PRESET_NAME true
 #define SUBGHZ_RAW_THRESHOLD_MIN (-90.0f)
-#define SUBGHZ_MEASURE_LOADING   false
+#define SUBGHZ_MEASURE_LOADING false
+
+typedef struct {
+    uint8_t fix[4];
+    uint8_t cnt[4];
+    uint8_t seed[4];
+} SecureData;
 
 struct SubGhz {
     Gui* gui;
@@ -83,7 +89,7 @@ struct SubGhz {
     FuriString* error_str;
     SubGhzLock lock;
 
-    GenInfo* gen_info;
+    SecureData* secure_data;
 
     SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
 

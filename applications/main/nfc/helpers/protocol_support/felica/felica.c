@@ -26,6 +26,12 @@ static void nfc_scene_info_on_enter_felica(NfcApp* instance) {
     widget_add_text_scroll_element(
         instance->widget, 0, 0, 128, 48, furi_string_get_cstr(temp_str));
 
+    widget_add_button_element(
+        instance->widget,
+        GuiButtonTypeRight,
+        "More",
+        nfc_protocol_support_common_widget_callback,
+        instance);
     furi_string_free(temp_str);
 }
 
@@ -39,8 +45,17 @@ static bool nfc_scene_info_on_event_felica(NfcApp* instance, SceneManagerEvent e
 }
 
 static void nfc_scene_more_info_on_enter_felica(NfcApp* instance) {
-    // Jump to advanced scene right away
-    scene_manager_next_scene(instance->scene_manager, NfcSceneFelicaMoreInfo);
+    const NfcDevice* device = instance->nfc_device;
+    const FelicaData* data = nfc_device_get_data(device, NfcProtocolFelica);
+
+    FuriString* temp_str = furi_string_alloc();
+
+    nfc_render_felica_dump(data, temp_str);
+
+    widget_add_text_scroll_element(
+        instance->widget, 0, 0, 128, 64, furi_string_get_cstr(temp_str));
+
+    furi_string_free(temp_str);
 }
 
 static NfcCommand nfc_scene_read_poller_callback_felica(NfcGenericEvent event, void* context) {
@@ -97,7 +112,7 @@ static void nfc_scene_read_success_on_enter_felica(NfcApp* instance) {
 
     FuriString* temp_str = furi_string_alloc();
 
-    if(!scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn)) {
+    if(!scene_manager_has_previous_scene(instance->scene_manager, NfcSceneFelicaUnlockWarn)) {
         furi_string_cat_printf(
             temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
         nfc_render_felica_info(data, NfcProtocolFormatTypeShort, temp_str);
@@ -124,6 +139,15 @@ static void nfc_scene_read_success_on_enter_felica(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
+static bool nfc_scene_saved_menu_on_event_felica(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEdit) {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
+        return true;
+    }
+
+    return false;
+}
+
 static void nfc_scene_emulate_on_enter_felica(NfcApp* instance) {
     const FelicaData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolFelica);
     instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolFelica, data);
@@ -145,7 +169,7 @@ static void nfc_scene_read_menu_on_enter_felica(NfcApp* instance) {
 static bool nfc_scene_read_menu_on_event_felica(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexUnlock) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneDesAuthKeyInput);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneFelicaKeyInput);
             return true;
         }
     }
@@ -153,7 +177,7 @@ static bool nfc_scene_read_menu_on_event_felica(NfcApp* instance, SceneManagerEv
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_felica = {
-    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureEmulateUid,
 
     .scene_info =
         {
@@ -183,7 +207,7 @@ const NfcProtocolSupportBase nfc_protocol_support_felica = {
     .scene_saved_menu =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_saved_menu_on_event_felica,
         },
     .scene_save_name =
         {
@@ -195,11 +219,4 @@ const NfcProtocolSupportBase nfc_protocol_support_felica = {
             .on_enter = nfc_scene_emulate_on_enter_felica,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
-    .scene_write =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
 };
-
-NFC_PROTOCOL_SUPPORT_PLUGIN(felica, NfcProtocolFelica);

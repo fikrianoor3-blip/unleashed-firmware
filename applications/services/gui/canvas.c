@@ -170,7 +170,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     } else if(font == FontBigNumbers) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
     } else if(font == FontBatteryPercent) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tr); //u8g2_font_micro_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tf); //u8g2_font_micro_tr);
     } else {
         furi_crash();
     }
@@ -520,21 +520,9 @@ void canvas_draw_xbm(
     size_t height,
     const uint8_t* bitmap) {
     furi_check(canvas);
-    canvas_draw_xbm_ex(canvas, x, y, width, height, IconRotation0, bitmap);
-}
-
-void canvas_draw_xbm_ex(
-    Canvas* canvas,
-    int32_t x,
-    int32_t y,
-    size_t width,
-    size_t height,
-    IconRotation rotation,
-    const uint8_t* bitmap_data) {
-    furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
-    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, rotation);
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, IconRotation0);
 }
 
 void canvas_draw_glyph(Canvas* canvas, int32_t x, int32_t y, uint16_t ch) {
@@ -557,7 +545,7 @@ void canvas_draw_icon_bitmap(
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);
+    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
     u8g2_DrawXBM(&canvas->fb, x, y, w, h, icon_data);
 }
 

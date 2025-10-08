@@ -2,9 +2,8 @@
 
 #include "tests/test_api.h"
 
-#include <toolbox/cli/cli_command.h>
+#include <cli/cli.h>
 #include <toolbox/path.h>
-#include <toolbox/pipe.h>
 #include <loader/loader.h>
 #include <storage/storage.h>
 #include <notification/notification_messages.h>
@@ -26,7 +25,7 @@ struct TestRunner {
     NotificationApp* notification;
 
     // Temporary used things
-    PipeSide* pipe;
+    Cli* cli;
     FuriString* args;
 
     // ELF related stuff
@@ -39,14 +38,14 @@ struct TestRunner {
     int minunit_status;
 };
 
-TestRunner* test_runner_alloc(PipeSide* pipe, FuriString* args) {
+TestRunner* test_runner_alloc(Cli* cli, FuriString* args) {
     TestRunner* instance = malloc(sizeof(TestRunner));
 
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->loader = furi_record_open(RECORD_LOADER);
     instance->notification = furi_record_open(RECORD_NOTIFICATION);
 
-    instance->pipe = pipe;
+    instance->cli = cli;
     instance->args = args;
 
     instance->composite_resolver = composite_api_resolver_alloc();
@@ -72,9 +71,6 @@ void test_runner_free(TestRunner* instance) {
 
     free(instance);
 }
-
-#define TEST_RUNNER_TMP_DIR            EXT_PATH(".tmp")
-#define TEST_RUNNER_TMP_UNIT_TESTS_DIR TEST_RUNNER_TMP_DIR "/unit_tests"
 
 static bool test_runner_run_plugin(TestRunner* instance, const char* path) {
     furi_assert(instance);
@@ -132,23 +128,13 @@ static void test_runner_run_internal(TestRunner* instance) {
     File* directory = storage_file_alloc(instance->storage);
 
     do {
-        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_DIR)) {
-            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_DIR);
-            break;
-        }
-
-        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_UNIT_TESTS_DIR)) {
-            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_UNIT_TESTS_DIR);
-            break;
-        }
-
         if(!storage_dir_open(directory, PLUGINS_PATH)) {
             FURI_LOG_E(TAG, "Failed to open directory %s", PLUGINS_PATH);
             break;
         }
 
         while(true) {
-            if(cli_is_pipe_broken_or_is_etx_next_char(instance->pipe)) {
+            if(cli_cmd_interrupt_received(instance->cli)) {
                 break;
             }
 
